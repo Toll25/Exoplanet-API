@@ -1,64 +1,35 @@
-import {exoplanetsModel} from "../../models/exoplanetsModel.js";
+import {
+    deleteExoplanetById,
+    exoplanetsModel,
+    getExoplanetById,
+    updateExoplanetById
+} from "../../models/exoplanetsModel.js";
 
 export default function (exoplanetsService) {
     let operations = {
         GET: getById,
-        PUT: replaceById,
         PATCH: updateById,
         DELETE: deleteById
     };
 
-    function getById(request, response, next) {
-        const exoplanet = exoplanetsModel.exoplanets.find(x => x.id === request.params.id);
-        if (exoplanet !== undefined) {
-            response
-                .status(200)
-                .json(exoplanet);
-        } else {
-            response.sendStatus(404);
-        }
+    async function getById(request, response, next) {
+        let exoplanet = await getExoplanetById(request.params.id)
+        response
+            .status(200)
+            .json(exoplanet);
+
     }
 
-    function replaceById(request, response, next) {
-        let exoplanetIndex = exoplanetsModel.exoplanets.findIndex(x => x.id === request.params.id);
-        if (exoplanetIndex !== -1) {
-            exoplanetsModel.exoplanets[exoplanetIndex] = request.body;
-
-            response
-                .status(200)
-                .json(request.body);
-        } else {
-            response.sendStatus(404);
-        }
+    async function updateById(request, response, next) {
+        response
+            .status(200)
+            .json(await updateExoplanetById(request.body, request.params.id));
     }
 
-    function updateById(request, response, next) {
-        let exoplanetIndex = exoplanetsModel.exoplanets.findIndex(x => x.id === request.params.id);
-        if (exoplanetIndex !== -1) {
-            exoplanetsModel.exoplanets[exoplanetIndex] = {
-                ...exoplanetsModel.exoplanets[exoplanetIndex],
-                ...request.body
-            };
-
-            response
-                .status(200)
-                .json(request.body);
-        } else {
-            response.sendStatus(404);
-        }
-    }
-
-    function deleteById(request, response, next) {
-        const exoplanetIndex = exoplanetsModel.exoplanets.findIndex(x => x.id === request.params.id);
-        if (exoplanetIndex !== -1) {
-            exoplanetsModel.exoplanets.splice(exoplanetIndex, 1);
-
-            response
-                .status(200)
-                .json(request.body);
-        } else {
-            response.sendStatus(404);
-        }
+    async function deleteById(request, response, next) {
+        response
+            .status(200)
+            .json(await deleteExoplanetById(request.params.id));
     }
 
     getById.apiDoc = {
@@ -79,52 +50,6 @@ export default function (exoplanetsService) {
         responses: {
             200: {
                 description: 'an exoplanet with the given id.',
-                content: {
-                    'application/json': {
-                        schema: {
-                            $ref: '#/components/schemas/exoplanet'
-                        }
-                    },
-                    'application/xml': {
-                        schema: {
-                            $ref: '#/components/schemas/exoplanet'
-                        }
-                    }
-                }
-            },
-            404: {
-                description: 'exoplanet with given id does not exist.'
-            }
-        }
-    };
-
-    replaceById.apiDoc = {
-        summary: 'replaces a single exoplanet by id.',
-        operationId: 'replaceById',
-        parameters: [
-            {
-                name: 'id',
-                in: 'path',
-                description: 'id of exoplanet to replace.',
-                required: true,
-                schema: {
-                    type: 'integer',
-                    format: 'int64'
-                }
-            }
-        ],
-        requestBody: {
-            content: {
-                'application/json': {
-                    schema: {
-                        $ref: '#/components/schemas/exoplanet'
-                    }
-                }
-            }
-        },
-        responses: {
-            200: {
-                description: 'the replaced exoplanet.',
                 content: {
                     'application/json': {
                         schema: {

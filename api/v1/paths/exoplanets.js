@@ -1,23 +1,25 @@
-import {exoplanetsModel} from "../models/exoplanetsModel.js";
+import "../models/exoplanetsModel.js";
+import {getAllExoplanets, createExoplanet} from "../models/exoplanetsModel.js";
 
 export default function (exoplanetsService) {
     let operations = {
         GET: getExoplanets,
-        POST: createExoplanet,
+        POST: create,
     };
 
-    function getExoplanets(request, response, next) {
+    async function getExoplanets(request, response, next) {
+        let exoplanets= await getAllExoplanets()
         response
             .status(200)
-            .json(exoplanetsService.getExoplanets());
-    };
+            .json(exoplanets);
+    }
 
-    function createExoplanet(request, response, next) {
-        exoplanetsModel.exoplanets.push(request.body)
+    async function create(request, response, next) {
+        await createExoplanet(request.body)
         response.status(200).json("Added new Exoplanet")
-    };
+    }
 
-    createExoplanet.apiDoc = {
+    create.apiDoc = {
         summary: 'adds a Exoplanet.',
         operationId: 'createExoplanet',
         parameters: [],
